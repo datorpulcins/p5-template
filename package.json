@@ -1,0 +1,18 @@
+{
+  "name": "p5-template",
+  "version": "0.0.0",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "serve": "vite preview"
+  },
+  "devDependencies": {
+    "@types/p5": "^1.4.2",
+    "prettier": "^2.6.2",
+    "typescript": "^4.6.4",
+    "vite": "^2.9.7"
+  },
+  "dependencies": {
+    "p5": "^1.4.1"
+  }
+}
