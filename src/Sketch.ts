@@ -1,10 +1,13 @@
 import p5 from "p5";
-import "p5/lib/addons/p5.sound";
+import * as Tone from "tone";
+import { eq } from "./eq";
 
 export const Sketch = (p: p5) => {
   let w = window.innerWidth;
   let h = window.innerHeight;
-  let mic: p5.AudioIn;
+
+  const fft = new Tone.FFT();
+  const mic = new Tone.UserMedia().connect(fft);
 
   p.windowResized = () => {
     w = window.innerWidth;
@@ -14,19 +17,25 @@ export const Sketch = (p: p5) => {
 
   p.setup = () => {
     p.createCanvas(p.windowWidth, p.windowHeight);
-    mic = new p5.AudioIn();
-    mic.start();
+    p.noStroke();
   };
 
-  p.mouseClicked = () => {
-    p.getAudioContext().resume();
+  p.mousePressed = () => {
+    mic.open();
+    Tone.context.resume();
   };
 
   p.draw = () => {
-    const micLevel = mic.getLevel();
-
     p.background(0);
-    p.fill([255, 0, 0]);
-    p.circle(w / 2, h / 2, micLevel * 1000 + 50);
+
+    let levels = fft.getValue();
+
+    const low = eq(levels, 0, 0.3);
+    const mid = eq(levels, 0.3, 0.6);
+    const high = eq(levels, 0.6, 1);
+
+    p.circle(w / 2, h / 2, low * 3);
+    p.circle(w / 2 + 40, h / 2, mid * 3);
+    p.circle(w / 2 + 80, h / 2, high * 3);
   };
 };
