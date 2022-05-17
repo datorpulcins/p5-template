@@ -48,8 +48,10 @@ export const Sketch = (p: p5) => {
     p.background(0);
 
     rings.forEach((ring, index) => {
-      const energy = analyser.getEnergy(ring.name);
-      const radius = energy * centerY;
+      // index = 0, tad 1, tad 2, tad 3 ... 4
+      // index = kārtas skaitlis
+      const energy = analyser.getEnergy(ring.name); // Skaitlis 0..1
+      const radius = energy * Math.min(centerY, centerX); // 1 * 640 = 640
 
       p.stroke(ring.color);
       p.circle(centerX, centerY, radius * 2);
@@ -58,9 +60,9 @@ export const Sketch = (p: p5) => {
 
       p.noStroke();
       p.fill(ring.color);
-      p.translate(centerX, centerY);
-      p.rotate(-10 * index + 1);
-      p.textSize(14);
+      p.translate(centerX, centerY); // nomainam rotācijas/skeilošanas centru
+      p.rotate(-10 * index);
+      p.textSize(44);
       p.text(ring.name, radius + 10, 0);
 
       p.pop();

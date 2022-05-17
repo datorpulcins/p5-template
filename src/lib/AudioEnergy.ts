@@ -48,7 +48,6 @@ export class AudioEnergy extends Analyser {
     }
 
     const toReturn = total / numFrequencies;
-    console.log(toReturn);
     return this.map(toReturn, -120, -40, 0, 1);
   };
 }
