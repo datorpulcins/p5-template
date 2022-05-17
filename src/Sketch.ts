@@ -1,13 +1,24 @@
 import p5 from "p5";
 import * as Tone from "tone";
-import { eq } from "./eq";
+import { AudioEnergy, Range } from "./lib/AudioEnergy";
 
 export const Sketch = (p: p5) => {
+  const mp3 = "/human-music.mp3";
+  const player = new Tone.Player();
+  const analyser = new AudioEnergy();
+
+  const rings: { name: Range; color: string }[] = [
+    { name: "treble", color: "tomato" },
+    { name: "highMid", color: "cyan" },
+    { name: "mid", color: "yellow" },
+    { name: "lowMid", color: "orange" },
+    { name: "bass", color: "pink" },
+  ];
+
   let w = window.innerWidth;
   let h = window.innerHeight;
-
-  const fft = new Tone.FFT();
-  const mic = new Tone.UserMedia().connect(fft);
+  let centerX = w / 2;
+  let centerY = h / 2;
 
   p.windowResized = () => {
     w = window.innerWidth;
@@ -15,27 +26,42 @@ export const Sketch = (p: p5) => {
     p.resizeCanvas(p.windowWidth, p.windowHeight);
   };
 
-  p.setup = () => {
+  p.setup = async () => {
+    await player.load(mp3);
+
+    player.connect(analyser);
+    player.connect(Tone.Destination);
+
     p.createCanvas(p.windowWidth, p.windowHeight);
-    p.noStroke();
+
+    p.noFill();
+    p.angleMode(p.DEGREES);
   };
 
   p.mousePressed = () => {
-    mic.open();
-    Tone.context.resume();
+    player.start();
   };
 
   p.draw = () => {
     p.background(0);
 
-    let levels = fft.getValue();
+    rings.forEach((ring, index) => {
+      const energy = analyser.getEnergy(ring.name);
+      const radius = energy * centerY;
 
-    const low = eq(levels, 0, 0.3);
-    const mid = eq(levels, 0.3, 0.6);
-    const high = eq(levels, 0.6, 1);
+      p.stroke(ring.color);
+      p.circle(centerX, centerY, radius * 2);
 
-    p.circle(w / 2, h / 2, low * 3);
-    p.circle(w / 2 + 40, h / 2, mid * 3);
-    p.circle(w / 2 + 80, h / 2, high * 3);
+      p.push();
+
+      p.noStroke();
+      p.fill(ring.color);
+      p.translate(centerX, centerY);
+      p.rotate(-10 * index + 1);
+      p.textSize(14);
+      p.text(ring.name, radius + 10, 0);
+
+      p.pop();
+    });
   };
 };
