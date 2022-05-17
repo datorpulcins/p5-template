@@ -23,6 +23,8 @@ export const Sketch = (p: p5) => {
   p.windowResized = () => {
     w = window.innerWidth;
     h = window.innerHeight;
+    centerX = w / 2;
+    centerY = h / 2;
     p.resizeCanvas(p.windowWidth, p.windowHeight);
   };
 
